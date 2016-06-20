@@ -1,7 +1,7 @@
 /*!
  * Copyright 2016 Thinking Bytes Ltd.
  *
- * ngChatScroller, v0.1.0
+ * ngChatScroller, v0.1.1
  * Smooth Chat based scrolling for Angular.
  * http://angularjs.org/
  *
