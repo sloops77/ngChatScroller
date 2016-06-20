@@ -1,9 +1,9 @@
 {
   "name": "ngChatScroller",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "homepage": "https://github.com/sloops77/ngChatScroller",
   "authors": [
-    "Andre Olave <andres.olave@thinkingbytes.net"
+    "Andres Olave <andres.olave@thinkingbytes.net"
   ],
   "description": "A smooth scroller for chat based apps that reverse scroll (bottom to top)",
   "main": [
@@ -12,12 +12,10 @@
   "keywords": [
     "mobile",
     "html5",
-    "trigger",
-    "triggerio",
-    "forge",
     "angularjs",
     "angular",
-    "ionic"
+    "scroll",
+    "chat"
   ],
   "license": "MIT",
   "private": false,
