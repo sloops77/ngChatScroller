@@ -15,7 +15,6 @@ bower_components/
 components/
 tmp
 temp
-dist
 
 .idea
 *.iml
