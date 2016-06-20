@@ -2,6 +2,21 @@
  * First created for Sportwize
  * Smooth chat scroll for both scroll to bottom & maintaining scroll
  */
+ngcsUtils = {
+    size(arr) {
+        if (!arr)
+            return 0;
+
+        return arr.length;
+    },
+    last(arr) {
+        if (!arr)
+            return undefined;
+
+        return arr[arr.length - 1];
+    }
+};
+
 class ChatScroller {
     constructor($elem, $log) {
         this.scrollView = $elem;
@@ -73,52 +88,45 @@ class ChatScroller {
     }
 }
 
-utils = {
-    size(arr) {
-        if (!arr)
-          return 0;
+class NgChatScrollerController {
+    constructor($scope, $element, $attrs, $log) {
+        this.$log = $log;
+        this.chatScroller = new ChatScroller($element[0], $log);
+        this.messages = null;
+        $scope.ngcsNumRendered = $scope.ngcsLimit = 0;
 
-        return arr.length;
-    },
-    last(arr) {
-        if (!arr)
-          return undefined;
+        this.watches($scope, $attrs.chatScrollView)
+    }
 
-        return arr[arr.length - 1];
+    watches($scope, scrollViewAttr) {
+        $scope.$watchCollection(scrollViewAttr, (newVal) => {
+            // this.$log.info(`@ChatMessages.updateMessages(${ngcsUtils.size(newVal)}), current=${$scope.ngcsLimit}, numRendered=${$scope.ngcsNumRendered})}`)
+
+            if (newVal === null || ngcsUtils.size(newVal) === $scope.ngcsLimit)
+                return;
+
+            if (ngcsUtils.last(this.messages) === ngcsUtils.last(newVal)) {
+                // this.$log.info('MaintainScroll');
+                this.chatScroller.startScroll('MaintainScroll', false);
+            } else {
+                // this.$log.info(`ScrollBottom(${$scope.ngcsNumRendered > 0})`);
+                this.chatScroller.startScroll('ScrollBottom', $scope.ngcsNumRendered > 0);
+            }
+
+            this.messages = newVal;
+            $scope.ngcsLimit = ngcsUtils.size(newVal);
+        });
     }
 }
+
+
+NgChatScrollerController.$inject = ['$scope', '$element', '$attrs', '$log'];
 
 angular.module('ngChatScroller', []).directive('chatScrollView', ['$log', ($log) => {
     return {
         restrict: 'A',
-        controller: ['$scope', '$element', '$attrs', ($scope, $element, $attrs) => {
-            this.init = () => {
-                this.chatScroller = new ChatScroller($element[0], $log);
-                this.messages = null;
-                $scope.ngcsNumRendered = $scope.ngcsLimit = 0;
-            };
-
-            $scope.$watchCollection($attrs.chatScrollView, (newVal) => {
-                // $log.info(`@ChatMessages.updateMessages(${utils.size(newVal)}), current=${$scope.ngcsLimit}, numRendered=${$scope.ngcsNumRendered})}`)
-
-                if (newVal === null || utils.size(newVal) === $scope.ngcsLimit)
-                    return;
-
-                if (utils.last(this.messages) === utils.last(newVal)) {
-                    // $log.info('MaintainScroll');
-                    this.chatScroller.startScroll('MaintainScroll', false);
-                } else {
-                    // $log.info(`ScrollBottom(${$scope.ngcsNumRendered > 0})`);
-                    this.chatScroller.startScroll('ScrollBottom', $scope.ngcsNumRendered > 0);
-                }
-
-                this.messages = newVal;
-                $scope.ngcsLimit = utils.size(newVal);
-            });
-
-            this.init();
-        }],
-        link: ($scope, $element, $attrs) => {
+        controller: NgChatScrollerController,
+        link: ($scope, $element, $attrs, $ctrl) => {
             const chatMessageSelector = $attrs.ngcsMessageSelector ? $attrs.ngcsMessageSelector : '.chat-message';
             return $scope.$watch(
               () => $element[0].querySelectorAll(chatMessageSelector).length,
@@ -128,7 +136,7 @@ angular.module('ngChatScroller', []).directive('chatScrollView', ['$log', ($log)
                       $scope.$evalAsync(() => {
                           if ($scope.ngcsLimit === newVal) {
                               $scope.ngcsNumRendered = newVal;
-                              this.chatScroller.stopCurrentScroll();
+                              $ctrl.chatScroller.stopCurrentScroll();
                           }
                       });
                   }
