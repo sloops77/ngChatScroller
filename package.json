@@ -1,15 +1,12 @@
 {
-  "name": "ngChatScroller",
+  "name": "ng-chat-scroller",
   "private": false,
   "version": "0.1.2",
   "repository": {
     "url": "git://github.com/sloops77/ngChatScroller.git"
   },
-  "browser" : "dist/ngChatScroller.js",
-  "author": {
-    "name": "Andres Olave",
-    "email": "andres.olave@thinkingbytes.net"
-  },
+  "browser": "dist/ngChatScroller.js",
+  "author": "Andres Olave <andres.olave@thinkingbytes.net>",
   "bugs": {
     "url": "https://github.com/sloops77/ngChatScroller/issues"
   },
@@ -71,5 +68,16 @@
     {
       "type": "MIT"
     }
-  ]
+  ],
+  "description": "A smooth scroller for chat based apps that reverse scroll (bottom to top)",
+  "homepage": "https://github.com/sloops77/ngChatScroller#readme",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "angular",
+    "chat",
+    "scroll"
+  ],
+  "license": "MIT"
 }
