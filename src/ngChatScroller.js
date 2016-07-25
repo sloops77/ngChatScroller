@@ -91,11 +91,16 @@ class ChatScroller {
 class NgChatScrollerController {
     constructor($scope, $element, $attrs, $log) {
         this.$log = $log;
+        this.$attrs = $attrs;
         this.chatScroller = new ChatScroller($element[0], $log);
         this.messages = null;
         $scope.ngcsNumRendered = $scope.ngcsLimit = 0;
 
         this.watches($scope, $attrs.chatScrollView)
+    }
+
+    getTrackByVal(val) {
+        return _.isEmpty(val) || _.isEmpty(this.$attrs.ngcsTrackBy) ? val : val[this.$attrs.ngcsTrackBy]
     }
 
     watches($scope, scrollViewAttr) {
@@ -105,7 +110,7 @@ class NgChatScrollerController {
             if (newVal === null || ngcsUtils.size(newVal) === $scope.ngcsLimit)
                 return;
 
-            if (ngcsUtils.last(this.messages) === ngcsUtils.last(newVal)) {
+            if (this.getTrackByVal(ngcsUtils.last(this.messages)) === this.getTrackByVal(ngcsUtils.last(newVal))) {
                 // this.$log.info('MaintainScroll');
                 this.chatScroller.startScroll('MaintainScroll', false);
             } else {

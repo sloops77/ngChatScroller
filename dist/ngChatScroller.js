@@ -1,7 +1,7 @@
 /*!
  * Copyright 2016 Thinking Bytes Ltd.
  *
- * ngChatScroller, v0.2.0
+ * ngChatScroller, v0.3.0
  * Smooth Chat based scrolling for Angular.
  * http://angularjs.org/
  *
@@ -127,6 +127,7 @@ var NgChatScrollerController = function () {
         _classCallCheck(this, NgChatScrollerController);
 
         this.$log = $log;
+        this.$attrs = $attrs;
         this.chatScroller = new ChatScroller($element[0], $log);
         this.messages = null;
         $scope.ngcsNumRendered = $scope.ngcsLimit = 0;
@@ -135,6 +136,11 @@ var NgChatScrollerController = function () {
     }
 
     _createClass(NgChatScrollerController, [{
+        key: 'getTrackByVal',
+        value: function getTrackByVal(val) {
+            return _.isEmpty(val) || _.isEmpty(this.$attrs.ngcsTrackBy) ? val : val[this.$attrs.ngcsTrackBy];
+        }
+    }, {
         key: 'watches',
         value: function watches($scope, scrollViewAttr) {
             var _this2 = this;
@@ -144,7 +150,7 @@ var NgChatScrollerController = function () {
 
                 if (newVal === null || ngcsUtils.size(newVal) === $scope.ngcsLimit) return;
 
-                if (ngcsUtils.last(_this2.messages) === ngcsUtils.last(newVal)) {
+                if (_this2.getTrackByVal(ngcsUtils.last(_this2.messages)) === _this2.getTrackByVal(ngcsUtils.last(newVal))) {
                     // this.$log.info('MaintainScroll');
                     _this2.chatScroller.startScroll('MaintainScroll', false);
                 } else {
