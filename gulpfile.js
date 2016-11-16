@@ -1,9 +1,11 @@
 var buildConfig = require('./build.config.js');
-var changelog = require('conventional-changelog');
-var GithubApi = require('github');
+var conventionalChangelog = require('gulp-conventional-changelog');
+var conventionalGithubReleaser = require('conventional-github-releaser');
+var git = require('gulp-git');
 var gulp = require('gulp');
 var pkg = require('./package.json');
 var rename = require('gulp-rename');
+var runSequence = require('run-sequence');
 var template = require('gulp-template');
 
 /**
@@ -33,18 +35,14 @@ function makeChangelog(options) {
                 version: version,
                 subtitle: subtitle,
                 file: file,
-                from: from
+                from: from,
+                preset: 'angular',
               }, function(err, log) {
       if (err) reject(err);
       else resolve(log);
     });
   });
 }
-
-gulp.task('release', [
-  'version',
-  'release-github'
-]);
 
 gulp.task('version', function() {
   var d = new Date();
@@ -62,28 +60,61 @@ gulp.task('version', function() {
       .pipe(gulp.dest(buildConfig.dist));
 });
 
-gulp.task('release-github', function(done) {
-  var github = new GithubApi({
-    version: '3.0.0'
-  });
-  github.authenticate({
-    type: 'oauth',
-    token: process.env.GH_TOKEN
-  });
-  makeChangelog({
-    standalone: true
-  })
-    .then(function(log) {
-      var version = 'v' + pkg.version;
-      github.releases.createRelease({
-        owner: 'sloops77',
-        repo: 'ngChatScroller',
-        tag_name: version,
-        name: 'ngChatScroller-' + version,
-        body: log
-      }, done);
+gulp.task('changelog', function () {
+    return gulp.src('CHANGELOG.md', {
+        buffer: false
     })
-    .catch(done);
+        .pipe(conventionalChangelog({
+                                        preset: 'angular' // Or to any other commit message convention you use.
+                                    }))
+        .pipe(gulp.dest('./'));
+});
+
+gulp.task('github-release', function(done) {
+    conventionalGithubReleaser({
+                                   type: "oauth",
+                                   token: process.env.GH_TOKEN
+                               }, {
+                                   preset: 'angular' // Or to any other commit message convention you use.
+                               }, done);
+});
+
+gulp.task('release', function (done) {
+    runSequence(
+        'version',
+        'changelog',
+        'commit-changes',
+        'push-changes',
+        'create-new-tag',
+        'github-release',
+        function (error) {
+            if (error) {
+                console.log(error.message);
+            } else {
+                console.log('RELEASE FINISHED SUCCESSFULLY');
+            }
+            done(error);
+        });
+});
+
+
+gulp.task('commit-changes', function () {
+    return gulp.src('.')
+        .pipe(git.add())
+        .pipe(git.commit('[Prerelease] Bumped version number'));
+});
+
+gulp.task('push-changes', function (cb) {
+    git.push('origin', 'master', cb);
+});
+
+gulp.task('create-new-tag', function (cb) {
+    git.tag(version, 'Created Tag for version: ' + pkg.version, function (error) {
+        if (error) {
+            return cb(error);
+        }
+        git.push('origin', 'master', { args: '--tags' }, cb);
+    });
 });
 
 function pad(n) {
