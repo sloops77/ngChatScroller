@@ -1,22 +1,8 @@
+import ngcsUtils from './ngcsUtils';
 /**
  * First created for Sportwize
  * Smooth chat scroll for both scroll to bottom & maintaining scroll
  */
-ngcsUtils = {
-    size(arr) {
-        if (!arr)
-            return 0;
-
-        return arr.length;
-    },
-    last(arr) {
-        if (!arr)
-            return undefined;
-
-        return arr[arr.length - 1];
-    }
-};
-
 class ChatScroller {
     constructor($elem, $log) {
         this.scrollView = $elem;
@@ -63,7 +49,7 @@ class ChatScroller {
 
         const checkSize = (sizeChange, repeats) => {
             return setTimeout(
-              () => doCheckSize(sizeChange, repeats)
+                () => doCheckSize(sizeChange, repeats)
             );
         };
 
@@ -100,15 +86,16 @@ class NgChatScrollerController {
     }
 
     getTrackByVal(val) {
-        return _.isEmpty(val) || _.isEmpty(this.$attrs.ngcsTrackBy) ? val : val[this.$attrs.ngcsTrackBy]
+        return ngcsUtils.isEmpty(val) || ngcsUtils.isEmpty(this.$attrs.ngcsTrackBy) ? val : val[this.$attrs.ngcsTrackBy]
     }
 
     watches($scope, scrollViewAttr) {
         $scope.$watchCollection(scrollViewAttr, (newVal) => {
             // this.$log.info(`@ChatMessages.updateMessages(${ngcsUtils.size(newVal)}), current=${$scope.ngcsLimit}, numRendered=${$scope.ngcsNumRendered})}`)
 
-            if (newVal === null || ngcsUtils.size(newVal) === $scope.ngcsLimit)
+            if (newVal === null || ngcsUtils.size(newVal) === $scope.ngcsLimit) {
                 return;
+            }
 
             if (this.getTrackByVal(ngcsUtils.last(this.messages)) === this.getTrackByVal(ngcsUtils.last(newVal))) {
                 // this.$log.info('MaintainScroll');
@@ -127,25 +114,25 @@ class NgChatScrollerController {
 
 NgChatScrollerController.$inject = ['$scope', '$element', '$attrs', '$log'];
 
-angular.module('ngChatScroller', []).directive('chatScrollView', ['$log', ($log) => {
+angular.module('ngChatScroller', []).directive('chatScrollView', ['$log', ($log) => { // eslint-disable-line no-unused-vars
     return {
         restrict: 'A',
         controller: NgChatScrollerController,
         link: ($scope, $element, $attrs, $ctrl) => {
             const chatMessageSelector = $attrs.ngcsMessageSelector ? $attrs.ngcsMessageSelector : '.chat-message';
             return $scope.$watch(
-              () => $element[0].querySelectorAll(chatMessageSelector).length,
-              (newVal, oldVal) => {
-                  // $log.info(`@ChatMessages.watch('numChats'): newVal=${newVal}, oldVal=${oldVal}`);
-                  if (newVal > 0) {
-                      $scope.$evalAsync(() => {
-                          if ($scope.ngcsLimit === newVal) {
-                              $scope.ngcsNumRendered = newVal;
-                              $ctrl.chatScroller.stopCurrentScroll();
-                          }
-                      });
-                  }
-              }
+                () => $element[0].querySelectorAll(chatMessageSelector).length,
+                (newVal) => {
+                    // $log.info(`@ChatMessages.watch('numChats'): newVal=${newVal}, oldVal=${oldVal}`);
+                    if (newVal > 0) {
+                        $scope.$evalAsync(() => {
+                            if ($scope.ngcsLimit === newVal) {
+                                $scope.ngcsNumRendered = newVal;
+                                $ctrl.chatScroller.stopCurrentScroll();
+                            }
+                        });
+                    }
+                }
             );
         }
     };
