@@ -27,18 +27,18 @@ function makeChangelog(options) {
   var subtitle = options.subtitle || '';
   var from = options.from;
   var version = options.version || pkg.version;
-  var deferred = q.defer();
-  changelog({
-    repository: 'https://github.com/sloops77/ngChatScroller',
-    version: version,
-    subtitle: subtitle,
-    file: file,
-    from: from
-  }, function(err, log) {
-    if (err) deferred.reject(err);
-    else deferred.resolve(log);
+  return new Promise(function (resolve, reject) {
+    changelog({
+                repository: 'https://github.com/sloops77/ngChatScroller',
+                version: version,
+                subtitle: subtitle,
+                file: file,
+                from: from
+              }, function(err, log) {
+      if (err) reject(err);
+      else resolve(log);
+    });
   });
-  return deferred.promise;
 }
 
 gulp.task('release', [
@@ -83,7 +83,7 @@ gulp.task('release-github', function(done) {
         body: log
       }, done);
     })
-    .fail(done);
+    .catch(done);
 });
 
 function pad(n) {
