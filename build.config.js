@@ -4,8 +4,6 @@ var fs = require('fs');
 module.exports = {
   dist: 'dist',
 
-  protractorPort: 8876,
-
   banner:
   '/*!\n' +
   ' * Copyright 2016 Thinking Bytes Ltd.\n' +
@@ -19,12 +17,6 @@ module.exports = {
   ' * Licensed under the MIT license. Please see LICENSE for more information.\n'+
   ' *\n' +
   ' */\n\n',
-  closureStart: '(function() {\n',
-  closureEnd: '\n})();',
-
-  files: [
-    'src/*.js',
-  ],
 
   //Exclamation can be no longer than 14 chars
   exclamations: [
